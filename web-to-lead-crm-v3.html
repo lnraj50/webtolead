@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Web-to-Lead-CRM</title>
+<style>
+  html[data-theme="dark"]{
+    --bg:#0b1120; --panel:rgba(21,31,51,.78); --panel-2:#18223c; --line:#283354;
+    --fg:#e8ecf9; --muted:#8f99bd; --accent:#6366f1; --accent-2:#22d3ee; --accent-hl:#a5b4fc;
+    --accent-fg:#ffffff; --ok:#34d399; --err:#f87171; --drop:rgba(99,102,241,.10);
+    --code-bg:#0a0f1f; --code-fg:#9ec5ff; --radius:16px; --info:#67e8f9;
+    --card-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 24px 50px -28px rgba(2,6,18,.9);
+    --btn-shadow:0 10px 26px -10px rgba(99,102,241,.65);
+    --decor:
+      radial-gradient(900px 480px at 12% -12%, rgba(99,102,241,.20), transparent 60%),
+      radial-gradient(820px 440px at 92% -6%, rgba(34,211,238,.12), transparent 55%);
+    --field-bg:#101a30;
+  }
+  html[data-theme="light"]{
+    --bg:#f3f5fc; --panel:#ffffff; --panel-2:#eef1fa; --line:#dbe1f2;
+    --fg:#141b31; --muted:#5b6584; --accent:#4f46e5; --accent-2:#0891b2; --accent-hl:#4f46e5;
+    --accent-fg:#ffffff; --ok:#047857; --err:#b91c1c; --drop:rgba(79,70,229,.06);
+    --code-bg:#edf1fb; --code-fg:#1e3a8a; --radius:16px; --info:#0e7490;
+    --card-shadow:0 1px 2px rgba(20,27,49,.06),0 18px 40px -24px rgba(79,70,229,.28);
+    --btn-shadow:0 10px 22px -10px rgba(79,70,229,.45);
+    --decor:
+      radial-gradient(900px 480px at 12% -12%, rgba(99,102,241,.10), transparent 60%),
+      radial-gradient(820px 440px at 92% -6%, rgba(34,211,238,.10), transparent 55%);
+    --field-bg:#f5f7fd;
+  }
+  html[data-theme="medium"]{
+    --bg:#414b66; --panel:#4c5672; --panel-2:#566082; --line:#6c7694;
+    --fg:#eef1fb; --muted:#c2cade; --accent:#818cf8; --accent-2:#22d3ee; --accent-hl:#c7d2fe;
+    --accent-fg:#141a36; --ok:#6ee7b7; --err:#fca5a5; --drop:rgba(129,140,248,.18);
+    --code-bg:#39415e; --code-fg:#cdd9ff; --radius:16px; --info:#7dd3fc;
+    --card-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 22px 44px -26px rgba(10,14,30,.8);
+    --btn-shadow:0 10px 24px -10px rgba(129,140,248,.55);
+    --decor:
+      radial-gradient(900px 480px at 12% -12%, rgba(129,140,248,.22), transparent 60%),
+      radial-gradient(820px 440px at 92% -6%, rgba(34,211,238,.14), transparent 55%);
+    --field-bg:#434c68;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--decor),var(--bg);background-attachment:fixed;color:var(--fg);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  header{padding:36px 20px 12px;text-align:center;position:relative}
+  h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.6px;
+    background:linear-gradient(92deg,var(--accent-hl),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  h1 sup{font-size:.58em;vertical-align:super;line-height:0}
+  header p{margin:8px 0 0;color:var(--muted);font-size:14px}
+  #theme{position:absolute;top:20px;right:20px;padding:8px 14px}
+  .wrap{max-width:1120px;margin:0 auto;padding:20px;display:grid;gap:20px;grid-template-columns:1fr 1fr}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}#theme{position:static;margin:12px auto 0}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+    box-shadow:var(--card-shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .card h2{margin:0 0 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted)}
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;font-weight:600}
+  input,select,textarea{width:100%;padding:10px 12px;background:var(--field-bg);border:1px solid var(--line);
+    color:var(--fg);border-radius:10px;font-size:14px;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+  input:hover,textarea:hover,select:hover{border-color:var(--accent)}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  button{cursor:pointer;border:0;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-fg);
+    box-shadow:var(--btn-shadow);transition:filter .15s,transform .05s}
+  button:hover{filter:brightness(1.1)} button:active{transform:translateY(1px)}
+  button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--fg);box-shadow:none}
+  button.ghost:hover{border-color:var(--accent);color:var(--accent-hl);filter:none}
+  #drop{border:2px dashed var(--line);border-radius:var(--radius);padding:36px 16px;text-align:center;
+    color:var(--muted);cursor:pointer;transition:.18s;background:color-mix(in srgb,var(--panel-2) 45%,transparent)}
+  #drop:hover,#drop.over{border-color:var(--accent-2);color:var(--accent-hl);background:var(--drop);
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-2) 12%,transparent)}
+  #preview{margin-top:14px;width:100%;border-radius:12px;display:none;border:1px solid var(--line)}
+  .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:12px;padding:12px;overflow:auto;
+    font-size:12px;max-height:280px;color:var(--code-fg);line-height:1.5}
+  .status{margin-top:12px;font-size:13px;min-height:18px;font-weight:600}
+  .status.ok{color:var(--ok)} .status.err{color:var(--err)} .status.busy{color:var(--accent-2)} .status.info{color:var(--info)}
+  details{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+  summary{cursor:pointer;color:var(--muted);font-size:13px}
+  .hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+  .provider-banner{padding:10px 12px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));
+    border-radius:10px;background:color-mix(in srgb,var(--accent) 9%,transparent);
+    font-size:12px;color:var(--muted);margin-top:10px}
+  .provider-banner strong{color:var(--fg)}
+  .hidden{display:none!important}
+
+  .top-tabs{max-width:1120px;margin:10px auto 0;padding:0 20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .top-tabs button{background:var(--panel);color:var(--muted);border:1px solid var(--line);box-shadow:none;font-weight:600}
+  .top-tabs button:hover{color:var(--fg);border-color:var(--accent);filter:none}
+  .top-tabs button.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:var(--accent-fg);border-color:transparent;box-shadow:var(--btn-shadow)}
+  .mode-panel{display:none;animation:fadein .25s ease}
+  .mode-panel.active{display:block}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .kiosk-wrap{max-width:920px;margin:0 auto;padding:20px}
+  .kiosk-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;
+    box-shadow:var(--card-shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .kiosk-card h2{margin:0 0 6px;font-size:22px;letter-spacing:-.3px}
+  .kiosk-card .lead{margin:0 0 16px;color:var(--muted);font-size:14px}
+  .kiosk-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+  .kiosk-grid .full{grid-column:1/-1}
+  @media(max-width:760px){.kiosk-grid{grid-template-columns:1fr}}
+  .kiosk-consent{display:flex;align-items:flex-start;gap:9px;margin-top:16px;color:var(--muted);font-size:12px}
+  .kiosk-consent input{width:auto;margin-top:2px;accent-color:var(--accent)}
+  .kiosk-submit-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+  .kiosk-success{padding:12px 14px;border:1px solid color-mix(in srgb,var(--ok) 45%,var(--line));
+    border-radius:10px;background:color-mix(in srgb,var(--ok) 12%,transparent);
+    color:var(--ok);font-weight:600;font-size:13px;margin-top:14px;display:none}
+
+  .brand-logo{display:block;max-width:150px;width:34vw;height:auto;margin:0 auto 14px;border-radius:12px;
+    box-shadow:0 8px 30px -12px rgba(2,6,18,.55)}
+
+  header h1,.card h2,.kiosk-card h2{letter-spacing:.2px}
+  .card h2{color:var(--muted)}
+  .kiosk-card h2,.chat-card h2{background:linear-gradient(92deg,var(--accent-hl),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  details > summary{font-weight:600}
+  details > summary:hover{color:var(--accent-hl)}
+
+  .chat-wrap{max-width:980px;margin:0 auto;padding:20px}
+  .chat-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+    box-shadow:var(--card-shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .chat-card h2{margin:0 0 6px;font-size:22px;letter-spacing:-.3px}
+  .chat-card .lead{margin:0 0 14px;color:var(--muted);font-size:14px}
+  .chat-log{height:420px;overflow:auto;border:1px solid var(--line);border-radius:14px;
+    background:color-mix(in srgb,var(--panel-2) 60%,transparent);padding:14px;scroll-behavior:smooth}
+  .chat-log::-webkit-scrollbar{width:8px}
+  .chat-log::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  .chat-msg{max-width:84%;padding:10px 13px;border-radius:14px;margin:8px 0;white-space:pre-wrap;
+    line-height:1.5;font-size:14px;animation:fadein .2s ease}
+  .chat-msg.user{margin-left:auto;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:var(--accent-fg);border-bottom-right-radius:5px}
+  .chat-msg.assistant{margin-right:auto;background:var(--panel);border:1px solid var(--line);
+    color:var(--fg);border-bottom-left-radius:5px}
+  .chat-meta{font-size:10px;opacity:.72;margin-top:5px}
+  .chat-input-row{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px;align-items:end}
+  .chat-input-row textarea{min-height:86px;resize:vertical}
+  .chat-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+  .chat-context-preview{max-height:220px}
+  @media(max-width:760px){.chat-input-row,.chat-settings-grid{grid-template-columns:1fr}.chat-msg{max-width:94%}}
+</style>
+<script>
+(function(){
+  var t=localStorage.getItem("vcs_theme");
+  if(t!=="light"&&t!=="medium"&&t!=="dark") t="light";
+  document.documentElement.setAttribute("data-theme",t);
+})();
+</script>
+</head>
+<body>
+<header>
+  <img class="brand-logo" src="https://b3maconsulting.com/assets/b3-logo-main.jpg" alt="B3C logo" />
+  <h1>Web-to-Lead-CRM</h1>
+  <p>B³ Consulting · AI-powered lead capture — scan a card, use the kiosk, or chat → structured JSON to Make.com</p>
+  <button id="theme" class="ghost" type="button">Light mode</button>
+</header>
+
+<div class="top-tabs">
+  <button id="tabScanner" type="button" class="active">Visiting Card Scanner</button>
+  <button id="tabKiosk" type="button">Kiosk Form</button>
+  <button id="tabChat" type="button">AI Registration Chat</button>
+</div>
+
+
+<div id="scannerPanel" class="mode-panel active">
+<div class="wrap">
+  <section class="card">
+    <h2>1 · Card image</h2>
+    <div id="drop">
+      <strong>Click, paste or drop</strong><br />a visiting card photo (JPG / PNG / WEBP)
+      <input id="file" type="file" accept="image/*" capture="environment" hidden />
+    </div>
+    <img id="preview" alt="Card preview" />
+
+    <div class="actions">
+      <button id="scan" disabled>Scan card</button>
+      <button id="clear" class="ghost">Clear</button>
+    </div>
+    <div id="status" class="status"></div>
+
+    <details open>
+      <summary>AI & integration settings</summary>
+
+      <label>AI provider</label>
+      <select id="provider">
+        <option value="groq">Groq</option>
+        <option value="openai">OpenAI</option>
+      </select>
+
+      <div id="providerBanner" class="provider-banner"></div>
+
+      <div id="groqSettings">
+        <label>Groq API key (stored only in this browser)</label>
+        <input id="groqKey" type="password" placeholder="gsk_..." />
+        <div class="hint">Used only for Groq API requests from this page.</div>
+
+        <label>Groq vision / OCR model</label>
+        <select id="groqVisionModel">
+          <option value="qwen/qwen3.6-27b">qwen/qwen3.6-27b — vision + OCR</option>
+        </select>
+
+        <label>Groq parsing model</label>
+        <select id="groqParseModel">
+          <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
+          <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
+          <option value="qwen/qwen3.6-27b">qwen/qwen3.6-27b</option>
+        </select>
+
+        <div class="actions">
+          <button id="testGroq" type="button" class="ghost">Test Groq connection</button>
+        </div>
+        <div id="groqStatus" class="status"></div>
+      </div>
+
+      <div id="openaiSettings" class="hidden">
+        <label>OpenAI API key (stored only in this browser)</label>
+        <input id="openaiKey" type="password" placeholder="sk-..." />
+        <div class="hint">Used only for OpenAI API requests from this page.</div>
+
+        <label>OpenAI vision / OCR model</label>
+        <select id="openaiVisionModel">
+          <option value="gpt-5-mini">gpt-5-mini</option>
+          <option value="gpt-5">gpt-5</option>
+          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+        </select>
+
+        <label>OpenAI parsing model</label>
+        <select id="openaiParseModel">
+          <option value="gpt-5-mini">gpt-5-mini</option>
+          <option value="gpt-5">gpt-5</option>
+          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+        </select>
+
+        <div class="actions">
+          <button id="testOpenAI" type="button" class="ghost">Test OpenAI connection</button>
+        </div>
+        <div id="openaiStatus" class="status"></div>
+      </div>
+
+      <label>Make.com webhook URL</label>
+      <input id="webhook" placeholder="https://hook.eu2.make.com/xxxxxxxx" />
+      <div class="hint">The extracted JSON payload is sent here only when you click “Post to Make.com”.</div>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>2 · Extracted details</h2>
+    <div class="row">
+      <div><label>First Name *</label><input id="f_first_name" required /></div>
+      <div><label>Last Name *</label><input id="f_last_name" required /></div>
+    </div>
+    <div class="row">
+      <div><label>Email *</label><input id="f_email" type="email" required /></div>
+      <div><label>Company *</label><input id="f_company" required /></div>
+    </div>
+    <div class="row">
+      <div><label>Title/Designation *</label><input id="f_title" required /></div>
+      <div><label>Mobile *</label><input id="f_mobile" required /></div>
+    </div>
+    <div class="row">
+      <div><label>Phone (office)</label><input id="f_phone" /></div>
+      <div><label>Website</label><input id="f_website" placeholder="example.com" /></div>
+    </div>
+    <label>Address</label><input id="f_address" />
+    <div class="row">
+      <div><label>City</label><input id="f_city" /></div>
+      <div><label>State</label><input id="f_state" /></div>
+    </div>
+    <div class="row">
+      <div><label>Zip/Postal Code *</label><input id="f_postal_code" required /></div>
+      <div><label>Country</label><input id="f_country" /></div>
+    </div>
+
+    <div class="actions">
+      <button id="post" disabled>Post to Make.com</button>
+      <button id="copy" class="ghost">Copy JSON</button>
+    </div>
+    <div id="postStatus" class="status"></div>
+    <details open><summary>JSON payload</summary><pre id="json">{}</pre></details>
+    <details><summary>Raw OCR / card text</summary><pre id="ocrText">(none)</pre></details>
+  </section>
+</div>
+</div>
+
+<div id="kioskPanel" class="mode-panel">
+<div class="kiosk-wrap">
+  <section class="kiosk-card">
+    <h2>Visitor Registration</h2>
+    <p class="lead">Enter your details below and submit from the kiosk.</p>
+    <div class="kiosk-grid">
+      <div><label>First Name *</label><input id="k_first_name" autocomplete="given-name" required /></div>
+      <div><label>Last Name *</label><input id="k_last_name" autocomplete="family-name" required /></div>
+      <div><label>Email *</label><input id="k_email" type="email" autocomplete="email" required /></div>
+      <div><label>Company *</label><input id="k_company" autocomplete="organization" required /></div>
+      <div><label>Title/Designation *</label><input id="k_title" required /></div>
+      <div><label>Mobile *</label><input id="k_mobile" autocomplete="tel" required /></div>
+      <div><label>Phone (office)</label><input id="k_phone" /></div>
+      <div><label>Website</label><input id="k_website" placeholder="example.com" /></div>
+      <div class="full"><label>Address</label><input id="k_address" autocomplete="street-address" /></div>
+      <div><label>City</label><input id="k_city" autocomplete="address-level2" /></div>
+      <div><label>State</label><input id="k_state" autocomplete="address-level1" /></div>
+      <div><label>Zip/Postal Code *</label><input id="k_postal_code" autocomplete="postal-code" required /></div>
+      <div><label>Country</label><input id="k_country" autocomplete="country-name" /></div>
+    </div>
+    <details class="full" style="margin-top:14px">
+      <summary>Kiosk Settings</summary>
+      <div style="padding-top:8px">
+        <label>Make.com webhook URL</label>
+        <input id="k_webhook" type="url" placeholder="https://hook.eu2.make.com/xxxxxxxx" />
+        <div class="hint">Kiosk submissions will be POSTed as JSON directly to this Make.com webhook.</div>
+      </div>
+    </details>
+    <div class="kiosk-consent">
+      <input id="k_consent" type="checkbox" />
+      <label for="k_consent" style="margin:0">I confirm that the information entered above is accurate and I consent to its submission.</label>
+    </div>
+    <div class="kiosk-submit-row">
+      <button id="k_submit" type="button">Submit</button>
+      <button id="k_clear" type="button" class="ghost">Clear form</button>
+    </div>
+    <div id="k_status" class="status"></div>
+    <div id="k_success" class="kiosk-success">Thank you. Your details have been submitted successfully.</div>
+    <details><summary>Kiosk JSON payload</summary><pre id="k_json">{}</pre></details>
+  </section>
+</div>
+</div>
+
+
+<div id="chatPanel" class="mode-panel">
+  <div class="chat-wrap">
+    <section class="chat-card">
+      <h2>AI Registration Agent</h2>
+      <p class="lead">Ask a question. Current form values can be sent to Make.com as context, where your scenario can call Groq and return the AI response.</p>
+
+      <details open>
+        <summary>Chat Settings</summary>
+        <div class="chat-settings-grid" style="padding-top:8px">
+          <div>
+            <label>Make.com webhook URL</label>
+            <input id="chat_webhook" type="url" placeholder="https://hook.eu2.make.com/xxxxxxxx" />
+            <div class="hint">The browser POSTs your message, Groq model and selected form context to this webhook. Recommended Make.com response: <code>{"reply":"..."}</code> or Groq JSON containing <code>next_question</code>. For multi-turn registration, also return <code>registration</code> or <code>updated_registration</code> so the browser can persist it.</div>
+          </div>
+          <div>
+            <label>Groq model</label>
+            <select id="chat_model">
+              <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
+              <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
+            </select>
+          </div>
+          <div>
+            <label>Context source</label>
+            <select id="chat_context_source">
+              <option value="both">Visiting Card + Kiosk</option>
+              <option value="scanner">Visiting Card Scanner only</option>
+              <option value="kiosk">Kiosk Form only</option>
+              <option value="none">No form context</option>
+            </select>
+          </div>
+          <div>
+            <label>Settings behavior</label>
+            <select id="chat_settings_behavior">
+              <option value="open">Expanded by default</option>
+              <option value="closed">Collapsed by default</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Context being sent to Make.com</summary>
+        <pre id="chat_context_preview" class="chat-context-preview">{}</pre>
+      </details>
+
+      <details>
+        <summary>Stored registration state</summary>
+        <pre id="chat_registration_preview" class="chat-context-preview">{}</pre>
+      </details>
+
+      <details>
+        <summary>Last Make.com raw response</summary>
+        <pre id="chat_raw_response">(no response yet)</pre>
+      </details>
+
+      <div id="chat_log" class="chat-log">
+        <div class="chat-msg assistant">Hello. I’m your B³ Consulting AI Registration assistant. Say Hi to begin registration.<div class="chat-meta">AI Registration Agent</div></div>
+      </div>
+
+      <div class="chat-input-row">
+        <div>
+          <label>Your message</label>
+          <textarea id="chat_input" placeholder="Enter your details when asked by AI agent..."></textarea>
+        </div>
+        <button id="chat_send" type="button">Send</button>
+      </div>
+
+      <div class="actions">
+        <button id="chat_clear" type="button" class="ghost">Clear chat</button>
+      </div>
+      <div id="chat_status" class="status"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const FIELDS = [
+  "first_name","last_name","title","company","mobile","phone","email",
+  "website","address","city","state","postal_code","country"
+];
+
+function normalizeWebsite(v){
+  v=(v||"").trim();
+  if(!v) return "";
+  if(!/^https?:\/\//i.test(v)) v="https://"+v.replace(/^\/+/,"");
+  return v;
+}
+["f_website","k_website"].forEach(id=>{
+  const el=$(id);
+  if(!el) return;
+  el.addEventListener("blur",()=>{
+    const n=normalizeWebsite(el.value);
+    if(el.value.trim()!==n) el.value=n;
+    render(); renderKiosk(); renderChatContext();
+  });
+});
+
+let imageData = null;
+let lastOcrText = "";
+
+const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODELS_URL = "https://api.groq.com/openai/v1/models";
+const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
+const OPENAI_MODELS_URL = "https://api.openai.com/v1/models";
+
+const OCR_PROMPT =
+  "Read this business card carefully. Transcribe every visible piece of text exactly as printed, line by line. " +
+  "Preserve labels such as Mobile, Cell, Tel, Phone, Email, Web, Address, and any front/back distinctions. " +
+  "Do not infer missing information. Output plain text only.";
+
+const PARSE_PROMPT = `You are a precise business-card parser.
+Return ONLY a valid JSON object with exactly these keys:
+${FIELDS.join(", ")}
+
+Rules:
+- first_name and last_name refer to the PERSON, never the company.
+- Split the person's printed full name into first_name and last_name.
+- Drop salutations such as Mr, Ms, Mrs, Dr and suffixes unless essential.
+- company is the organization / business name.
+- title is the person's job title or designation.
+- mobile = explicitly mobile/cell/personal telephone number when identifiable.
+- phone = office/landline/general company telephone number.
+- If only one unlabeled phone number exists, place it in phone unless the card strongly suggests it is mobile.
+- Preserve country codes.
+- email must be an email address only.
+- website must be a website/domain only.
+- address is street/building/locality information excluding city/state/postal/country where separable.
+- state is state/province/region, not the city.
+- Use "" for missing values.
+- Do not invent or guess values.
+- No markdown and no commentary.`;
+
+const THEMES=["light","medium","dark"];
+function applyTheme(t){
+  if(!THEMES.includes(t)) t="light";
+  document.documentElement.setAttribute("data-theme",t);
+  localStorage.setItem("vcs_theme",t);
+  $("theme").textContent = "Theme: "+t.charAt(0).toUpperCase()+t.slice(1);
+}
+applyTheme(document.documentElement.getAttribute("data-theme")||"light");
+$("theme").onclick=()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  applyTheme(THEMES[(THEMES.indexOf(cur)+1)%THEMES.length]);
+};
+
+const SETTINGS = [
+  "provider","groqKey","groqVisionModel","groqParseModel",
+  "openaiKey","openaiVisionModel","openaiParseModel","webhook"
+];
+
+SETTINGS.forEach(k=>{
+  const el=$(k);
+  const saved=localStorage.getItem("vcs_"+k);
+  if(saved) el.value=saved;
+  el.addEventListener("change",()=>localStorage.setItem("vcs_"+k,el.value.trim()));
+});
+
+function updateProviderUI(){
+  const p=$("provider").value;
+  $("groqSettings").classList.toggle("hidden",p!=="groq");
+  $("openaiSettings").classList.toggle("hidden",p!=="openai");
+  $("providerBanner").innerHTML = p==="groq"
+    ? "<strong>Groq mode:</strong> Qwen 3.6 reads the image; a Groq-hosted parsing model structures the contact fields."
+    : "<strong>OpenAI mode:</strong> OpenAI reads the image and structures the contact fields using the selected models.";
+}
+$("provider").addEventListener("change",updateProviderUI);
+updateProviderUI();
+
+$("drop").addEventListener("click",()=>$("file").click());
+$("file").addEventListener("change",e=>e.target.files[0]&&loadImage(e.target.files[0]));
+
+["dragover","dragleave","drop"].forEach(ev=>$("drop").addEventListener(ev,e=>{
+  e.preventDefault();
+  $("drop").classList.toggle("over",ev==="dragover");
+  if(ev==="drop"&&e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
+}));
+
+window.addEventListener("paste",e=>{
+  for(const it of e.clipboardData.files||[]){
+    if(it.type.startsWith("image/")) loadImage(it);
+  }
+});
+
+function loadImage(file){
+  if(!file.type.startsWith("image/")){
+    return setStatus("Please choose an image file.","err");
+  }
+  const r=new FileReader();
+  r.onload=()=>{
+    $("preview").src=r.result;
+    $("preview").style.display="block";
+    imageData={mime:file.type,b64:r.result.split(",")[1]};
+    $("scan").disabled=false;
+    setStatus("Ready to scan.","");
+  };
+  r.readAsDataURL(file);
+}
+
+$("clear").onclick=()=>{
+  imageData=null;
+  lastOcrText="";
+  $("preview").style.display="none";
+  $("file").value="";
+  $("scan").disabled=true;
+  $("ocrText").textContent="(none)";
+  FIELDS.forEach(f=>$("f_"+f).value="");
+  render();
+  setStatus("");
+  setPostStatus("");
+};
+
+function setStatus(m,c=""){ $("status").className="status "+c; $("status").textContent=m; }
+function setPostStatus(m,c=""){ $("postStatus").className="status "+c; $("postStatus").textContent=m; }
+function setProviderStatus(provider,m,c=""){
+  const id=provider==="groq"?"groqStatus":"openaiStatus";
+  $(id).className="status "+c;
+  $(id).textContent=m;
+}
+
+async function fetchJson(url,options){
+  const res=await fetch(url,options);
+  const json=await res.json().catch(()=>({}));
+  if(!res.ok){
+    const base=json?.error?.message || json?.message || `HTTP ${res.status}`;
+    const failed=json?.error?.failed_generation || json?.failed_generation || "";
+    const detail=failed ? ` | failed_generation: ${typeof failed==="string" ? failed : JSON.stringify(failed)}` : "";
+    const err=new Error(base+detail);
+    err.status=res.status;
+    err.response=json;
+    throw err;
+  }
+  return json;
+}
+
+async function testGroq(){
+  const key=$("groqKey").value.trim();
+  if(!key) return setProviderStatus("groq","Add your Groq API key first.","err");
+  setProviderStatus("groq","Checking Groq models...","busy");
+  try{
+    const json=await fetchJson(GROQ_MODELS_URL,{
+      headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"}
+    });
+    const ids=(json.data||[]).map(x=>x.id);
+    const vision=$("groqVisionModel").value;
+    const parse=$("groqParseModel").value;
+    if(!ids.includes(vision)){
+      throw new Error(`Vision model "${vision}" is not available to this Groq key.`);
+    }
+    if(!ids.includes(parse)){
+      throw new Error(`Parsing model "${parse}" is not available to this Groq key.`);
+    }
+    setProviderStatus("groq",`Connected. Vision: ${vision} · Parse: ${parse}`,"ok");
+  }catch(err){
+    setProviderStatus("groq","Groq test failed: "+err.message,"err");
+  }
+}
+
+async function testOpenAI(){
+  const key=$("openaiKey").value.trim();
+  if(!key) return setProviderStatus("openai","Add your OpenAI API key first.","err");
+  setProviderStatus("openai","Checking OpenAI access...","busy");
+  try{
+    const json=await fetchJson(OPENAI_MODELS_URL,{
+      headers:{"Authorization":"Bearer "+key}
+    });
+    const ids=(json.data||[]).map(x=>x.id);
+    const vision=$("openaiVisionModel").value;
+    const parse=$("openaiParseModel").value;
+    const note1=ids.includes(vision)?"vision model found":"vision model may be alias/account-dependent";
+    const note2=ids.includes(parse)?"parse model found":"parse model may be alias/account-dependent";
+    setProviderStatus("openai",`Connected. ${vision}: ${note1}; ${parse}: ${note2}.`,"ok");
+  }catch(err){
+    setProviderStatus("openai","OpenAI test failed: "+err.message,"err");
+  }
+}
+
+$("testGroq").onclick=testGroq;
+$("testOpenAI").onclick=testOpenAI;
+
+async function groqChat(key,body){
+  const json=await fetchJson(GROQ_CHAT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify(body)
+  });
+  return json?.choices?.[0]?.message?.content || "";
+}
+
+async function groqOCR(key,dataUrl){
+  return groqChat(key,{
+    model:$("groqVisionModel").value,
+    temperature:0,
+    reasoning_effort:"none",
+    messages:[{
+      role:"user",
+      content:[
+        {type:"text",text:OCR_PROMPT},
+        {type:"image_url",image_url:{url:dataUrl}}
+      ]
+    }]
+  });
+}
+
+const BUSINESS_CARD_JSON_SCHEMA = {
+  type:"object",
+  properties:Object.fromEntries(FIELDS.map(f=>[f,{type:"string"}])),
+  required:[...FIELDS],
+  additionalProperties:false
+};
+
+async function groqParse(key,cardText){
+  const model=$("groqParseModel").value;
+  const prompt = PARSE_PROMPT +
+    "\n\nIMPORTANT: Every key must be present exactly once. Every value must be a JSON string. " +
+    "For unavailable information use an empty string.\n\nCard text:\n" + cardText;
+
+  // GPT-OSS models support Groq strict Structured Outputs. This prevents
+  // malformed/missing/extra JSON fields and avoids JSON validation failures.
+  if(model==="openai/gpt-oss-20b" || model==="openai/gpt-oss-120b"){
+    return groqChat(key,{
+      model,
+      temperature:0,
+      reasoning_effort:"low",
+      response_format:{
+        type:"json_schema",
+        json_schema:{
+          name:"business_card_contact",
+          strict:true,
+          schema:BUSINESS_CARD_JSON_SCHEMA
+        }
+      },
+      messages:[{role:"user",content:prompt}]
+    });
+  }
+
+  // Qwen supports JSON Object Mode but not Groq strict schema mode.
+  // Keep it available as a fallback parser with explicit non-reasoning JSON instructions.
+  return groqChat(key,{
+    model,
+    temperature:0,
+    reasoning_effort:"none",
+    reasoning_format:"hidden",
+    response_format:{type:"json_object"},
+    messages:[{role:"user",content:prompt}]
+  });
+}
+
+function extractOpenAIText(json){
+  if(typeof json.output_text==="string" && json.output_text) return json.output_text;
+  for(const item of json.output||[]){
+    for(const c of item.content||[]){
+      if((c.type==="output_text" || c.type==="text") && c.text) return c.text;
+    }
+  }
+  return "";
+}
+
+async function openAIResponse(key,body){
+  const json=await fetchJson(OPENAI_RESPONSES_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify(body)
+  });
+  return extractOpenAIText(json);
+}
+
+async function openAIOCR(key,dataUrl){
+  return openAIResponse(key,{
+    model:$("openaiVisionModel").value,
+    input:[{
+      role:"user",
+      content:[
+        {type:"input_text",text:OCR_PROMPT},
+        {type:"input_image",image_url:dataUrl,detail:"high"}
+      ]
+    }]
+  });
+}
+
+async function openAIParse(key,cardText){
+  return openAIResponse(key,{
+    model:$("openaiParseModel").value,
+    instructions:PARSE_PROMPT,
+    input:"Card text:\n"+cardText,
+    text:{format:{type:"json_object"}}
+  });
+}
+
+function cleanJsonText(text){
+  return text
+    .replace(/^```(?:json)?\s*/i,"")
+    .replace(/\s*```$/,"")
+    .trim();
+}
+
+$("scan").onclick=async()=>{
+  if(!imageData) return;
+
+  const provider=$("provider").value;
+  const key=(provider==="groq"?$("groqKey"):$("openaiKey")).value.trim();
+
+  if(!key){
+    return setStatus(`Add your ${provider==="groq"?"Groq":"OpenAI"} API key under Settings.`,"err");
+  }
+
+  $("scan").disabled=true;
+  setStatus(`Reading the card with ${provider==="groq"?"Groq":"OpenAI"}...`,"busy");
+
+  try{
+    const dataUrl=`data:${imageData.mime};base64,${imageData.b64}`;
+
+    let cardText="";
+    let structuredText="";
+
+    if(provider==="groq"){
+      cardText=await groqOCR(key,dataUrl);
+      if(!cardText.trim()) throw new Error("Groq returned no readable card text.");
+      lastOcrText=cardText.trim();
+      $("ocrText").textContent=lastOcrText;
+
+      setStatus("Structuring the details with Groq...","busy");
+      structuredText=await groqParse(key,cardText);
+    }else{
+      cardText=await openAIOCR(key,dataUrl);
+      if(!cardText.trim()) throw new Error("OpenAI returned no readable card text.");
+      lastOcrText=cardText.trim();
+      $("ocrText").textContent=lastOcrText;
+
+      setStatus("Structuring the details with OpenAI...","busy");
+      structuredText=await openAIParse(key,cardText);
+    }
+
+    const parsed=JSON.parse(cleanJsonText(structuredText));
+    FIELDS.forEach(f=>$("f_"+f).value=(parsed[f]??"").toString().trim());
+
+    render();
+    setStatus(`Card scanned successfully using ${provider==="groq"?"Groq":"OpenAI"}. Review the fields, then post.`,"ok");
+  }catch(err){
+    let msg=err.message||String(err);
+
+    if(msg.includes("does not exist") || msg.includes("do not have access")){
+      msg += " Use the provider's connection test to verify model access.";
+    }
+    if(/failed_generation|validate json|generated json/i.test(msg)){
+      msg += " The parsing model could not satisfy JSON output validation. For Groq, select openai/gpt-oss-20b or openai/gpt-oss-120b as the parsing model; the scanner now uses strict JSON Schema for those models.";
+    }
+
+    setStatus("Scan failed: "+msg,"err");
+  }finally{
+    $("scan").disabled=false;
+  }
+};
+
+function payload(){
+  const o={};
+  FIELDS.forEach(f=>o[f]=$("f_"+f).value.trim());
+  o.website=normalizeWebsite(o.website);
+  o.full_name=[o.first_name,o.last_name].filter(Boolean).join(" ");
+  o.scanned_at=new Date().toISOString();
+  o.source="visiting-card-scanner";
+  o.ai_provider=$("provider").value;
+  o.vision_model=$("provider").value==="groq"
+    ? $("groqVisionModel").value
+    : $("openaiVisionModel").value;
+  o.parsing_model=$("provider").value==="groq"
+    ? $("groqParseModel").value
+    : $("openaiParseModel").value;
+  return o;
+}
+
+function render(){
+  const p=payload();
+  $("json").textContent=JSON.stringify(p,null,2);
+  const required=["first_name","last_name","email","company","title","mobile","postal_code"];
+  $("post").disabled=!required.every(f=>p[f]);
+}
+
+FIELDS.forEach(f=>$("f_"+f).addEventListener("input",render));
+$("provider").addEventListener("change",render);
+render();
+
+$("copy").onclick=async()=>{
+  try{
+    await navigator.clipboard.writeText(JSON.stringify(payload(),null,2));
+    setPostStatus("JSON copied to clipboard.","ok");
+  }catch{
+    setPostStatus("Could not access the clipboard. Copy the JSON manually.","err");
+  }
+};
+
+$("post").onclick=async()=>{
+  const p=payload();
+  const required=["first_name","last_name","email","company","title","mobile","postal_code"];
+  const missing=required.filter(f=>!p[f]);
+  if(missing.length){
+    const labels={
+      first_name:"First Name",
+      last_name:"Last Name",
+      email:"Email",
+      company:"Company",
+      title:"Title/Designation",
+      mobile:"Mobile",
+      postal_code:"Zip/Postal Code"
+    };
+    return setPostStatus("Please complete required fields: "+missing.map(f=>labels[f]).join(", ")+".","err");
+  }
+  const url=$("webhook").value.trim();
+  if(!url) return setPostStatus("Add your Make.com webhook URL under Settings.","err");
+
+  $("post").disabled=true;
+  setPostStatus("Posting to Make.com...","busy");
+
+  try{
+    const res=await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload())
+    });
+    const txt=await res.text();
+    if(!res.ok) throw new Error(`HTTP ${res.status} ${txt.slice(0,120)}`);
+    setPostStatus("Sent successfully. Response: "+(txt.slice(0,80)||"(empty)"),"ok");
+  }catch(err){
+    setPostStatus("Post failed: "+err.message+" — check the webhook URL and CORS configuration.","err");
+  }finally{
+    $("post").disabled=false;
+  }
+};
+
+
+// --- mode tabs ---------------------------------------------------------------
+function setMode(mode){
+  const scanner = mode==="scanner";
+  const kiosk = mode==="kiosk";
+  const chat = mode==="chat";
+  $("scannerPanel").classList.toggle("active",scanner);
+  $("kioskPanel").classList.toggle("active",kiosk);
+  $("chatPanel").classList.toggle("active",chat);
+  $("tabScanner").classList.toggle("active",scanner);
+  $("tabKiosk").classList.toggle("active",kiosk);
+  $("tabChat").classList.toggle("active",chat);
+  if(chat) renderChatContext();
+}
+$("tabScanner").onclick=()=>setMode("scanner");
+$("tabKiosk").onclick=()=>setMode("kiosk");
+$("tabChat").onclick=()=>setMode("chat");
+
+// --- kiosk form --------------------------------------------------------------
+const KIOSK_FIELDS = [...FIELDS];
+
+// Dedicated Make.com webhook for kiosk submissions.
+const kioskWebhookSaved = localStorage.getItem("vcs_kiosk_webhook");
+if(kioskWebhookSaved) $("k_webhook").value = kioskWebhookSaved;
+$("k_webhook").addEventListener("change",()=>{
+  localStorage.setItem("vcs_kiosk_webhook",$("k_webhook").value.trim());
+});
+
+function kioskPayload(){
+  const o={};
+  KIOSK_FIELDS.forEach(f=>o[f]=($("k_"+f)?.value||"").trim());
+  o.website=normalizeWebsite(o.website);
+  o.full_name=[o.first_name,o.last_name].filter(Boolean).join(" ");
+  o.submitted_at=new Date().toISOString();
+  o.source="kiosk-form";
+  o.entry_method="manual";
+  o.submission_channel="make.com-webhook";
+  return o;
+}
+
+function renderKiosk(){
+  $("k_json").textContent=JSON.stringify(kioskPayload(),null,2);
+}
+KIOSK_FIELDS.forEach(f=>$("k_"+f).addEventListener("input",renderKiosk));
+renderKiosk();
+
+function setKioskStatus(m,c=""){
+  $("k_status").className="status "+c;
+  $("k_status").textContent=m;
+}
+
+$("k_clear").onclick=()=>{
+  KIOSK_FIELDS.forEach(f=>$("k_"+f).value="");
+  $("k_consent").checked=false;
+  $("k_success").style.display="none";
+  setKioskStatus("");
+  renderKiosk();
+};
+
+$("k_submit").onclick=async()=>{
+  const p=kioskPayload();
+  const required=["first_name","last_name","email","company","title","mobile","postal_code"];
+  const missing=required.filter(f=>!p[f]);
+  if(missing.length){
+    const labels={
+      first_name:"First Name",
+      last_name:"Last Name",
+      email:"Email",
+      company:"Company",
+      title:"Title/Designation",
+      mobile:"Mobile",
+      postal_code:"Zip/Postal Code"
+    };
+    return setKioskStatus("Please complete required fields: "+missing.map(f=>labels[f]).join(", ")+".","err");
+  }
+  if(!$("k_consent").checked){
+    return setKioskStatus("Please confirm consent before submitting.","err");
+  }
+
+  const url=$("k_webhook").value.trim();
+  if(!url){
+    return setKioskStatus("Add the Make.com webhook URL in the Kiosk Form before submitting.","err");
+  }
+  if(!/^https:\/\/hook\.[^/]+\.make\.com\//i.test(url) && !/^https:\/\/[^/]*make\.com\//i.test(url)){
+    return setKioskStatus("Please enter a valid Make.com HTTPS webhook URL.","err");
+  }
+
+  $("k_submit").disabled=true;
+  $("k_success").style.display="none";
+  setKioskStatus("Submitting...","busy");
+
+  try{
+    const res=await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(p)
+    });
+    const txt=await res.text();
+    if(!res.ok) throw new Error(`HTTP ${res.status} ${txt.slice(0,120)}`);
+
+    setKioskStatus("Submitted successfully.","ok");
+    $("k_success").style.display="block";
+    KIOSK_FIELDS.forEach(f=>$("k_"+f).value="");
+    $("k_consent").checked=false;
+    renderKiosk();
+  }catch(err){
+    setKioskStatus("Submission failed: "+err.message+" — check the webhook URL and CORS configuration.","err");
+  }finally{
+    $("k_submit").disabled=false;
+  }
+};
+
+
+
+// --- AI support chat ----------------------------------------------------------
+let chatRegistrationState = JSON.parse(localStorage.getItem("vcs_chat_registration_state") || "null");
+
+const CHAT_SETTINGS = ["chat_webhook","chat_model","chat_context_source","chat_settings_behavior"];
+CHAT_SETTINGS.forEach(k=>{
+  const el=$(k);
+  const saved=localStorage.getItem("vcs_"+k);
+  if(saved) el.value=saved;
+  el.addEventListener("change",()=>{
+    localStorage.setItem("vcs_"+k,el.value.trim());
+    if(k==="chat_context_source") renderChatContext();
+    if(k==="chat_settings_behavior"){
+      $("chatPanel").querySelector("details").open=el.value==="open";
+    }
+  });
+});
+if($("chat_settings_behavior").value==="closed"){
+  $("chatPanel").querySelector("details").open=false;
+}
+
+function scannerContext(){
+  const o={};
+  FIELDS.forEach(f=>o[f]=($("f_"+f)?.value||"").trim());
+  o.website=normalizeWebsite(o.website);
+  o.full_name=[o.first_name,o.last_name].filter(Boolean).join(" ");
+  o.source="visiting-card-scanner";
+  return o;
+}
+
+function kioskContext(){
+  const o={};
+  KIOSK_FIELDS.forEach(f=>o[f]=($("k_"+f)?.value||"").trim());
+  o.website=normalizeWebsite(o.website);
+  o.full_name=[o.first_name,o.last_name].filter(Boolean).join(" ");
+  o.source="kiosk-form";
+  return o;
+}
+
+function chatContext(){
+  const source=$("chat_context_source").value;
+
+  const baseContext = source==="scanner"
+    ? {scanner:scannerContext()}
+    : source==="kiosk"
+      ? {kiosk:kioskContext()}
+      : source==="none"
+        ? {}
+        : {scanner:scannerContext(),kiosk:kioskContext()};
+
+  if(chatRegistrationState){
+    baseContext.registration = chatRegistrationState;
+  }
+
+  return baseContext;
+}
+
+function renderChatContext(){
+  $("chat_context_preview").textContent=JSON.stringify(chatContext(),null,2);
+  if($("chat_registration_preview")){
+    $("chat_registration_preview").textContent=JSON.stringify(chatRegistrationState || {},null,2);
+  }
+}
+FIELDS.forEach(f=>$("f_"+f).addEventListener("input",renderChatContext));
+KIOSK_FIELDS.forEach(f=>$("k_"+f).addEventListener("input",renderChatContext));
+renderChatContext();
+
+function setChatStatus(m,c=""){
+  $("chat_status").className="status "+c;
+  $("chat_status").textContent=m;
+}
+
+function addChatMessage(role,text){
+  const div=document.createElement("div");
+  div.className="chat-msg "+role;
+  div.textContent=text;
+  const meta=document.createElement("div");
+  meta.className="chat-meta";
+  meta.textContent=role==="user" ? "You" : "AI Registration Agent";
+  div.appendChild(meta);
+  $("chat_log").appendChild(div);
+  $("chat_log").scrollTop=$("chat_log").scrollHeight;
+}
+
+function extractMakeChatText(raw, depth=0){
+  if(raw==null || depth>10) return "";
+
+  if(typeof raw==="string"){
+    const t=raw.trim();
+    if(!t) return "";
+    try{
+      const parsed=JSON.parse(t);
+      const nested=extractMakeChatText(parsed,depth+1);
+      if(nested) return nested;
+    }catch{}
+    if(/^(accepted|ok|success|successfully accepted)$/i.test(t)) return "";
+    return t;
+  }
+
+  if(typeof raw==="number" || typeof raw==="boolean") return "";
+
+  if(Array.isArray(raw)){
+    for(const item of raw){
+      const candidate=extractMakeChatText(item,depth+1);
+      if(candidate) return candidate;
+    }
+    return "";
+  }
+
+  if(typeof raw==="object"){
+    const preferredKeys=[
+      "reply","next_question","nextQuestion","question","answer",
+      "completion_message","ai_response","assistant_response","response","content",
+      "text","message","output_text"
+    ];
+
+    for(const key of preferredKeys){
+      if(Object.prototype.hasOwnProperty.call(raw,key)){
+        const candidate=extractMakeChatText(raw[key],depth+1);
+        if(candidate) return candidate;
+      }
+    }
+
+    const lowerMap={};
+    Object.keys(raw).forEach(k=>lowerMap[k.toLowerCase()]=k);
+    for(const lk of [
+      "reply","next_question","nextquestion","question","answer",
+      "completion_message","ai_response","assistant_response","response","content",
+      "text","message","result","body","output","data"
+    ]){
+      const actual=lowerMap[lk];
+      if(actual){
+        const candidate=extractMakeChatText(raw[actual],depth+1);
+        if(candidate) return candidate;
+      }
+    }
+
+    const choiceContent=raw?.choices?.[0]?.message?.content;
+    if(choiceContent){
+      const candidate=extractMakeChatText(choiceContent,depth+1);
+      if(candidate) return candidate;
+    }
+
+    for(const value of Object.values(raw)){
+      const candidate=extractMakeChatText(value,depth+1);
+      if(candidate) return candidate;
+    }
+  }
+
+  return "";
+}
+
+function extractRegistrationState(raw, depth=0){
+  if(raw==null || depth>10) return null;
+
+  if(typeof raw==="string"){
+    const t=raw.trim();
+    if(!t) return null;
+    try{
+      return extractRegistrationState(JSON.parse(t),depth+1);
+    }catch{
+      return null;
+    }
+  }
+
+  if(Array.isArray(raw)){
+    for(const item of raw){
+      const found=extractRegistrationState(item,depth+1);
+      if(found) return found;
+    }
+    return null;
+  }
+
+  if(typeof raw==="object"){
+    const candidateKeys=[
+      "registration",
+      "updated_registration",
+      "updatedRegistration",
+      "form_context",
+      "state"
+    ];
+
+    for(const key of candidateKeys){
+      if(raw[key] && typeof raw[key]==="object" && !Array.isArray(raw[key])){
+        const obj=raw[key];
+        const hasRegistrationFields=[
+          "first_name","last_name","email","company","title","mobile","postal_code"
+        ].some(k=>Object.prototype.hasOwnProperty.call(obj,k));
+        if(hasRegistrationFields) return obj;
+      }
+    }
+
+    const lowerMap={};
+    Object.keys(raw).forEach(k=>lowerMap[k.toLowerCase()]=k);
+    for(const lk of ["registration","updated_registration","updatedregistration"]){
+      const actual=lowerMap[lk];
+      if(actual && raw[actual] && typeof raw[actual]==="object"){
+        return raw[actual];
+      }
+    }
+
+    for(const value of Object.values(raw)){
+      const found=extractRegistrationState(value,depth+1);
+      if(found) return found;
+    }
+  }
+
+  return null;
+}
+
+function saveChatRegistrationState(state){
+  if(!state || typeof state!=="object") return;
+  chatRegistrationState = state;
+  localStorage.setItem("vcs_chat_registration_state",JSON.stringify(state));
+  renderChatContext();
+}
+
+function clearChatRegistrationState(){
+  chatRegistrationState = null;
+  localStorage.removeItem("vcs_chat_registration_state");
+  renderChatContext();
+}
+
+
+function chatRequestPayload(message){
+  return {
+    event:"B3 Consulting Event - 2027",
+    source:"ai-support-chat",
+    provider:"groq",
+    model:$("chat_model").value,
+    message,
+    user_message:message,
+    current_registration: chatRegistrationState || {},
+    context_source:$("chat_context_source").value,
+    form_context:chatContext(),
+    requested_at:new Date().toISOString()
+  };
+}
+
+async function sendChat(){
+  const url=$("chat_webhook").value.trim();
+  const message=$("chat_input").value.trim();
+
+  if(!url) return setChatStatus("Add the Make.com webhook URL under Chat Settings.","err");
+  if(!message) return setChatStatus("Enter a message first.","err");
+
+  addChatMessage("user",message);
+  $("chat_input").value="";
+  $("chat_send").disabled=true;
+  setChatStatus("Sending to Make.com → Groq...","busy");
+  if($("chat_raw_response")) $("chat_raw_response").textContent="Waiting for Make.com...";
+
+  try{
+    const res=await fetch(url,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Accept":"application/json, text/plain, */*"
+      },
+      body:JSON.stringify(chatRequestPayload(message))
+    });
+
+    const text=await res.text();
+
+    if($("chat_raw_response")){
+      $("chat_raw_response").textContent=
+        `HTTP ${res.status} ${res.statusText}
+
+${text || "(empty response body)"}`;
+    }
+
+    if(!res.ok){
+      throw new Error(`Make.com returned HTTP ${res.status}${text ? ": "+text.slice(0,240) : ""}`);
+    }
+
+    let responseValue=text;
+    if(text.trim()){
+      try{ responseValue=JSON.parse(text); }catch{}
+    }
+
+    const returnedRegistration = extractRegistrationState(responseValue);
+    if(returnedRegistration){
+      saveChatRegistrationState(returnedRegistration);
+    }
+
+    const isComplete =
+      responseValue?.collection_complete === true ||
+      responseValue?.collection_complete === "true" ||
+      (
+        (responseValue?.mandatory_complete === true || responseValue?.mandatory_complete === "true") &&
+        (responseValue?.next_field === "" || responseValue?.next_field == null) &&
+        (responseValue?.next_question === "" || responseValue?.next_question == null)
+      );
+
+    if(isComplete){
+      addChatMessage("assistant","Registration complete, Thanks");
+      setChatStatus("Registration complete.","ok");
+
+      $("chat_send").disabled=true;
+      $("chat_input").disabled=true;
+      $("chat_input").value="";
+      $("chat_input").placeholder="Registration complete";
+
+      return;
+    }
+
+    const reply=extractMakeChatText(responseValue);
+
+    if(reply){
+      addChatMessage("assistant",reply);
+      setChatStatus(
+        returnedRegistration
+          ? "Response received from Make.com. Registration state updated."
+          : "Response received from Make.com.",
+        "ok"
+      );
+      return;
+    }
+
+    if(!text.trim() || /^(accepted|ok|success|successfully accepted)$/i.test(text.trim())){
+      throw new Error(
+        'Make.com accepted the request but returned no AI answer. Add a "Webhooks → Webhook response" module at the end of the Make.com scenario and return the Groq next_question/reply in the response Body.'
+      );
+    }
+
+    throw new Error(
+      'Make.com returned data, but no reply/next_question was found. Open "Last Make.com raw response" to inspect the exact payload.'
+    );
+
+  }catch(err){
+    setChatStatus("Chat failed: "+err.message,"err");
+  }finally{
+    $("chat_send").disabled=false;
+    $("chat_input").focus();
+  }
+}
+
+$("chat_send").onclick=sendChat;
+$("chat_input").addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    sendChat();
+  }
+});
+
+$("chat_clear").onclick=()=>{
+  $("chat_log").innerHTML='<div class="chat-msg assistant">Hello. I’m your B³ Consulting AI Registration assistant. Enter Hi to Start.<div class="chat-meta">AI Registration Agent</div></div>';
+  $("chat_input").disabled=false;
+  $("chat_send").disabled=false;
+  $("chat_input").value="";
+  $("chat_input").placeholder="Enter the details as asked by AI Registration Agent...";
+  clearChatRegistrationState();
+  if($("chat_raw_response")) $("chat_raw_response").textContent="(no response yet)";
+  setChatStatus("Chat and stored registration state cleared.","ok");
+};
+
+</script>
+</body>
+</html>
